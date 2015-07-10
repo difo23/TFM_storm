@@ -148,7 +148,7 @@ public abstract class FrankestainAdapterSpout extends BaseRichSpout {
                                // xdrs[cont]= document.toJson();
 
                                 ObjectId obj= new ObjectId();
-                          if(cont<4) {
+                          if(cont<40) {
                                 allxdrs.append(obj.toString(), document);
                                 cont++;
                             }
@@ -209,7 +209,7 @@ public abstract class FrankestainAdapterSpout extends BaseRichSpout {
                         } catch (final Throwable t) { }*/
                     }
 
-                    Utils.sleep(500);
+                    Utils.sleep(8000);
                 } catch (final MongoException cnf) {
                     // rethrow only if something went wrong while we expect the cursor to be open.
                     if (opened.get()) {

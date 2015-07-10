@@ -8,6 +8,8 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.gson.Gson;
+import com.mongodb.BasicDBList;
+import com.mongodb.util.JSON;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -25,129 +27,102 @@ public class FrankestainTree extends BaseRichBolt {
       //Long user;
       String xdrs_crudos;
       List user=tuple.getValues();;
-      Object obj_user= new Object();
-      Object doc_xdr = new Object();
+      Object id_ini= new Object();
+      Object id= new Object();
+      Object xdrs = new Object();
 
-      //String doc_xdr;
-     // Document xdr;
+
+
       int index=0;
-   // String sentence = tuple.getString(0);
-    //String xdrs = tuple.toString();
-
       try{
           if(tuple.getSourceStreamId().equals("xdrs_spout")){
-              //user= (ObjectId) tuple.getStringByField("user_id").toString();0
-              //xdrs= (Document) tuple.getStringByField("xdrs_arrays");1
-              //xdr=tuple.getStringByField("xdrs_arrays");
-              //user= tuple.getValues();
-              //index =;//user.fieldIndex("user_id");
-              obj_user= user.get(0);
-              doc_xdr=  user.get(1);
+              id_ini = user.get(0);
+              //id=null;
+              xdrs =  user.get(1);
+
               Gson gson= new Gson();
              // doc_xdr2.toString();
-              Document obj = gson.fromJson( doc_xdr.toString(), Document.class);
+              Document obj = gson.fromJson( xdrs.toString(), Document.class);
               Collection<Object> objv= obj.values();
-
-
-
-
-              //array = gson.fromJson( objv.toString(), (Class<T>) String.class);
-
-             // Document xdrs= new Document();
-            //
-            // doc_xdr2= new Document();
-              //System.out.println("***************user:"+obj_user);
-              //System.out.println("***************xdrs:"+doc_xdr);
-
-             // this.collector.emit("franktree_bolt", tuple, new Values(obj_user, user.get(1)));
-             // this.collector.ack(tuple);
-
-              /*//this.collector.emit("franktree_bolt", new Values(obj_user, doc_xdr));
-              System.out.println("***************User:" + obj_user.toString());
-             // System.out.println("***************xdrs:"+doc_xdr2.toString());
-              System.out.println("***************xdrs:" + objv.toArray()[0].toString());
-              System.out.println("***************xdrs:" + objv.toArray()[1].toString());
-              System.out.println("***************xdrs:"+objv.toArray()[2].toString());
-              System.out.println("***************xdrs:"+objv.toArray().length);
-              //System.out.println("***************xdrs:"+objv.toArray()[3].toString());
-                //
-            */
               index=objv.toArray().length;
-             // System.out.println("***************xdr_crudo:"+doc_xdr.getString("xdr_crudo").toString());
-             // System.out.println("***************IMSI:"+doc_xdr.getString("IMSI").toString());
 
-             /* ***************xdrs:{"5593f60e88cc3164883b4b3d":{"_id":"5565b4ece0f687668b056d73",
-             "idGroup":"5593f60e88cc3164883b4b3c","xdr_crudo":"Datos crudos xdrs","end_time":"Apr 27, 2015 2:00:56 PM",
-             "start_time":"Apr 27, 2015 2:00:37 PM"},"5593f60e88cc3164883b4b3e":{"_id":"5565b4ece0f687668b056d74","idGroup":
-             "5593f60e88cc3164883b4b3c","xdr_crudo":"Datos crudos xdrs","end_time":"Apr 27, 2015 2:00:56 PM","start_time":"Apr 27,
-              2015 2:00:37 PM"},"5593f60e88cc3164883b4b3f":{"_id":"5565b4ece0f687668b056d75","idGroup":"5593f60e88cc3164883b4b3c",
-              "xdr_crudo":"Datos crudos xdrs","end_time":"Apr 27, 2015 1:43:59 PM","start_time":"Apr 27, 2015 1:43:38 PM"}}
-                */
+              if(index<1)
+              {
+                  System.out.println("frankestaintree xdrs_spout: *************** Este grupo posee "+index+" xdrs no se puede corralar. Vale! ***********");
+                  //this.collector.fail(tuple);
+                  this.collector.ack(tuple);
+
+              } else{
+                  System.out.println("frankestaintree xdrs_spout: *************** Este grupo posee "+index+" xdrs iniciamos frank. Vale! ***********");
+                  this.collector.emit("franktree_bolt", tuple, new Values(id_ini,"INICIO", xdrs));
+                  this.collector.ack(tuple);
+              }
+
+          }else if(tuple.getSourceStreamId().equals("franksplitsonsder_bolt")){
+              id_ini= user.get(0);
+              id= user.get(1);
+              xdrs = user.get(2);
+              String xdrim= (String) user.get(2);
+              System.out.println("frankestaintree franksplitsonsder_bolt: *************** Grupo original: "+ id_ini.toString()+" Estoy en franktree recibo xdrs derecha. Vale! *********** "+id);
+              BasicDBList dbObject = (BasicDBList) JSON.parse(xdrim);
+
+
+              if(dbObject.size()<1)
+              {
+                  System.out.println("frankestaintree franksplitsonsder_bolt:  *************** Este grupo posee "+dbObject.size()+" xdrs no se puede corralar. Vale! ***********");
+                  //this.collector.fail(tuple);
+                  this.collector.ack(tuple);
+
+              } else{
+                  System.out.println("frankestaintree franksplitsonsder_bolt : *************** Este grupo posee "+dbObject.size()+" xdrs iniciamos frank. Vale! ***********");
+                  this.collector.emit("franktree_split_bolt", tuple, new Values(id_ini,id, xdrs));
+                  this.collector.ack(tuple);
+              }
+
+          }else if(tuple.getSourceStreamId().equals("franksplitsonsizq_bolt")){
+              id_ini= user.get(0);
+              id= user.get(1);
+              xdrs = user.get(2);
+              System.out.println("frankestaintree franksplitsonsizq_bolt: *************** Grupo original: "+id_ini+" Estoy en franktree recibo xdrs por la izq. Vale! *********** " +id );
+              String xdrim= (String) user.get(2);
+              BasicDBList dbObject = (BasicDBList) JSON.parse(xdrim);
+
+
+              if(dbObject.size()<1)
+              {
+                  System.out.println("frankestaintree franksplitsonsizq_bolt: *************** Este grupo posee "+dbObject.size()+" xdrs no se puede corralar. Vale! ***********");
+                  //this.collector.fail(tuple);
+                  this.collector.ack(tuple);
+
+              } else{
+                  System.out.println("frankestaintree franksplitsonsizq_bolt: *************** Este grupo posee "+dbObject.size()+" xdrs iniciamos frank. Vale! ***********");
+                  this.collector.emit("franktree_split_bolt", tuple, new Values(id_ini,id, xdrs));
+                  this.collector.ack(tuple);
+              }
+
+
           }else{
-
+              //System.out.println("*************** Este grupo posee "+index+" xdrs no se puede corralar. Vale! ***********");
+              this.collector.fail(tuple);
           }
 
       } catch (IllegalArgumentException e){
           // Hacer algo con la Exception
 
       }
-      //logica del bolt1 FrankestainTree
 
-    if(index<1)
-    {
-        System.out.println("*************** Este grupo posee "+index+" xdrs no se puede corralar. Vale! ***********");
-        this.collector.fail(tuple);
-
-    } else{
-        System.out.println("*************** Este grupo posee "+index+" xdrs iniciamos frank. Vale! ***********");
-        this.collector.emit("franktree_bolt", tuple, new Values(obj_user, user.get(1)));
-        this.collector.ack(tuple);
-    }
-
-
-
-
-
-      //Fin de la logica del bolt1
-
-      /* Envio al final del bolt
-      this.collector.emit("franktree_bolt", tuple, new Values(obj_user, user.get(1)));
-      this.collector.ack(tuple);
-      */
-      //Logica de franktree bolt
-
-     // System.out.println("FAIL this word didn't was processed:"+doc_xdr.getString("IMEI"));
-
-   // String fields= tuple;
-    //An iterator to get each word
-   // BreakIterator boundary=BreakIterator.getWordInstance();
-    //Give the iterator the sentence
-   // boundary.setText(sentence);
-    //Find the beginning first word
-    //int start=boundary.first();
-    //Iterate over each word and emit it to the output stream
-    //for (int end=boundary.next(); end != BreakIterator.DONE; start=end, end=boundary.next()) {
-      //get the word
-      //String word=sentence.substring(start,end);
-      //If a word is whitespace characters, replace it with empty
-      //word=word.replaceAll("\\s+","");
-      //if it's an actual word, emit it
-      //if (!word.equals("")) {
-       //this.collector.emit(tuple, new Values(/*xdrs*/));
            if(false){
                     //this.collector.ack(tuple);
                }else{
                // this.collector.fail(tuple);
                }
-
-     // }
-    //}
   }
 
   //Declare that emitted tuples will contain a word field
   @Override
   public void declareOutputFields(OutputFieldsDeclarer declarer) {
-    declarer.declareStream ("franktree_bolt", new Fields("user","xdrs"));
+      declarer.declareStream ("franktree_bolt", new Fields("user","id_split","xdrs"));
+      declarer.declareStream ("franktree_split_bolt", new Fields("user","id_split","xdrs"));
   }
 
     @Override

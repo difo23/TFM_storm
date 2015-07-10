@@ -2,10 +2,14 @@ package com.ayscom.minetur.frankestain_tree.bolts;
 
 
 import java.text.BreakIterator;
+import java.util.Map;
 
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
+import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -14,27 +18,30 @@ import backtype.storm.tuple.Values;
  * Created by lramirez on 12/06/15.
  */
 
-public class FrankestainSaveGroup extends BaseBasicBolt {
+public class FrankestainSaveGroup extends BaseRichBolt {
+
+    private OutputCollector collector;
+
     @Override
-    public void execute(Tuple tuple, BasicOutputCollector collector) {
-        //Get the sentence content from the tuple
-        String sentence = tuple.getString(0);
-        //An iterator to get each word
-        BreakIterator boundary=BreakIterator.getWordInstance();
-        //Give the iterator the sentence
-        boundary.setText(sentence);
-        //Find the beginning first word
-        int start=boundary.first();
-        //Iterate over each word and emit it to the output stream
-        for (int end=boundary.next(); end != BreakIterator.DONE; start=end, end=boundary.next()) {
-            //get the word
-            String word=sentence.substring(start,end);
-            //If a word is whitespace characters, replace it with empty
-            word=word.replaceAll("\\s+","");
-            //if it's an actual word, emit it
-            if (!word.equals("")) {
-                collector.emit(new Values(word));
+    public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
+
+    }
+
+    @Override
+    public void execute(Tuple tuple) {
+        try {
+
+            if (tuple.getSourceStreamId().equals("frankIM_bolt")) {
+
+            }else{
+
+
             }
+
+
+        }catch (IllegalArgumentException e) {
+            // Hacer algo con la Exception
+
         }
     }
 

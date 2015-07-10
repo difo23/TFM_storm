@@ -3,11 +3,11 @@
  
 
 
-programa_zookeeper=/home/lramirez/Documents/zookeeper/zookeeper-3.4.6/   #HOME del programa a ejecutar
+programa_zookeeper=/home/lizandro/Documents/zookeeper/zookeeper-3.4.6/   #HOME del programa a ejecutar
 startup_zookeeper=$programa_zookeeper/bin/zkServer.sh   #código para iniciar el programa
 shutdown_zookeeper=$programa_zookeeper/bin/zkServer.sh  #código para parar el programa
 
-programa_storm=/home/lramirez/Documents/storm/apache-storm-0.9.4  #HOME del programa a ejecutar
+programa_storm=/home/lizandro/Documents/storm/apache-storm-0.9.4  #HOME del programa a ejecutar
 startup_storm=$programa_storm/bin/storm   #código para iniciar el programa
 #shutdown_storm=$programa_storm/bin/storm #código para parar el programa
 

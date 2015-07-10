@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 source ~/.bashrc
-storm kill Frank_topology
+#storm kill Frank_topology
  mvn clean
  mvn clean package
  mvn -f pom.xml package
